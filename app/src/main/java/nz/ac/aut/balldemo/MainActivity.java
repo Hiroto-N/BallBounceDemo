@@ -1,20 +1,17 @@
 package nz.ac.aut.balldemo;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import java.util.Random;
 
@@ -27,6 +24,12 @@ public class MainActivity extends AppCompatActivity {
 
         Button button = new Button(this);
 
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+//Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(bv);
 
 
@@ -35,8 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public class BallView extends View {
 
         Paint paint;
-        Ball ball;
-        Paddle p;
+        GameLogic game ;
         Handler h = new Handler();
         Random rand = new Random();
 
@@ -52,67 +54,60 @@ public class MainActivity extends AppCompatActivity {
             super(context);
             paint = new Paint();
             paint.setColor(Color.RED);
-            ball = new Ball();
-            p = new Paddle();
-
+            game = new GameLogic();
 
         }
-
 
         public boolean onTouchEvent(MotionEvent event) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    if (event.getX() > getWidth()/2) {
-                        p.velocity = 20;
-                    } else {
-                        p.velocity = -20;
-                    }
-                    return true;
-                case MotionEvent.ACTION_UP:
-                    p.velocity = 0;
-                    break;
 
+            if (game.gameRunning) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (event.getX() > getWidth() / 2) {
+                            game.p.velocity = 20;
+                        } else {
+                            game.p.velocity = -20;
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        game.p.velocity = 0;
+                        break;
+
+                }
+                return true;
             }
-            return false;
+            else {
+                game.init(getWidth(), getHeight());
+                return false;
+            }
         }
-
 
         @Override
         protected void onDraw(Canvas c) {
             super.onDraw(c);
+            if (game.gameRunning) {
 
-            paint.setStyle(Paint.Style.FILL);
 
-            if (ball.loc_x + 100 >= this.getWidth() || ball.loc_x - 100 <= 0) {
-                ball.velocity_x *= -1;
-                //paint.setColor(new Color().rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+                paint.setStyle(Paint.Style.FILL);
+                game.update();
+
+
+                game.ball.loc_x += game.ball.velocity_x;
+                game.ball.loc_y += game.ball.velocity_y;
+
+                c.drawCircle(game.ball.loc_x, game.ball.loc_y, getWidth()/game.ball.radius, paint);
+                c.drawRect(game.p.getPaddleDim(), paint);
+
+                h.postDelayed(r, 10);
             }
-            if (ball.loc_y + 100 >= this.getHeight() || ball.loc_y - 100 <= 0) {
-                ball.velocity_y *= -1;
-                //paint.setColor(new Color().rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+            else {
+                paint.setTextAlign(Paint.Align.CENTER);
+                paint.setTextSize(paint.getTextSize()*10
+                );
+                c.drawText("Touch Screen to Start", getWidth()/2, getHeight()/2, paint);
+                h.postDelayed(r, 30);
             }
-
-            ball.loc_x += ball.velocity_x;
-            ball.loc_y += ball.velocity_y;
-            p.loc_x = p.loc_x+p.velocity;
-            Log.d("yolo", String.valueOf(p.velocity));
-
-            c.drawCircle(ball.loc_x, ball.loc_y, 100, paint);
-            c.drawRect(p.loc_x-100, getHeight()-70, p.loc_x+100,getHeight()-40, paint);
-            h.postDelayed(r, 10);
         }
-    }
-
-    public class Ball {
-        int loc_x = 600;
-        int loc_y = 600;
-        int velocity_x = 10;
-        int velocity_y = 10;
-    }
-
-    public class Paddle {
-        int loc_x = 500;
-        int velocity = 0;
     }
 
 }
