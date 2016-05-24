@@ -29,24 +29,42 @@ public class GameLogic {
         }
         if (ball.loc_y - ball.getRadius() <= 0) {
             ball.velocity_y *= -1;
+            //TODO this is where the info will send through bluetooth
         }
         if (ball.loc_y + ball.getRadius() >= p.loc_y) {
-            if ((ball.loc_x <= p.getPaddleDim().right*1.3 && ball.loc_x >= p.getPaddleDim().left*0.97)) {
+            if ((ball.loc_x <= p.getPaddleDim().right*1.05 && ball.loc_x >= p.getPaddleDim().left*0.95)) {
                 ball.velocity_y *= -1;
+                changeAngle();
             }
             else
                 gameRunning = false;
         }
+        moveBall();
         movePaddle();
     }
 
 
-    public void movePaddle() {
+    private void movePaddle() {
         if (p.velocity > 0 && p.getPaddleDim().right <= screenWidth*0.98)
             p.loc_x += p.velocity;
         if (p.velocity < 0 && p.getPaddleDim().left >= screenWidth*0.02) {
             p.loc_x += p.velocity;
         }
+    }
+
+    private void moveBall() {
+        ball.loc_x += ball.velocity_x;
+        ball.loc_y += ball.velocity_y;
+    }
+
+    private void changeAngle() {
+        if (ball.loc_x < p.loc_x)
+            ball.velocity_x = -15;
+        if (ball.loc_x > p.loc_x)
+            ball.velocity_x = 15;
+        if (ball.loc_x == p.loc_x)
+            ball.velocity_x = 0;
+
     }
 
     public class Ball {

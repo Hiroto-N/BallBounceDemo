@@ -53,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
         public BallView(Context context) {
             super(context);
             paint = new Paint();
-            paint.setColor(Color.RED);
+            paint.setColor(Color.WHITE);
             game = new GameLogic();
+            this.setBackgroundColor(Color.BLACK);
 
         }
 
@@ -87,23 +88,17 @@ public class MainActivity extends AppCompatActivity {
             super.onDraw(c);
             if (game.gameRunning) {
 
-
                 paint.setStyle(Paint.Style.FILL);
                 game.update();
 
-
-                game.ball.loc_x += game.ball.velocity_x;
-                game.ball.loc_y += game.ball.velocity_y;
-
-                c.drawCircle(game.ball.loc_x, game.ball.loc_y, getWidth()/game.ball.radius, paint);
+                c.drawCircle(game.ball.loc_x, game.ball.loc_y, game.ball.getRadius(), paint);
                 c.drawRect(game.p.getPaddleDim(), paint);
 
                 h.postDelayed(r, 10);
             }
             else {
                 paint.setTextAlign(Paint.Align.CENTER);
-                paint.setTextSize(paint.getTextSize()*10
-                );
+                paint.setTextSize(getWidth()/15);
                 c.drawText("Touch Screen to Start", getWidth()/2, getHeight()/2, paint);
                 h.postDelayed(r, 30);
             }
